@@ -26,6 +26,7 @@
     "install:example": "cd example-service && npm install"
   },
   "dependencies": {
+    "@shared/logging": "file:../logging",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.7",
     "express": "^4.18.2",
