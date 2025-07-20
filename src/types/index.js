@@ -1,7 +1,2 @@
-const authTypes = require('./auth.types');
-const permissions = require('./permissions');
-
-module.exports = {
-  ...authTypes,
-  ...permissions
-}; 
+export * from './auth.types.js';
+export * from './permissions.js'; 

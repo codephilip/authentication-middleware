@@ -1,12 +1,12 @@
-const { authenticate } = require('./authenticate');
-const { authorize } = require('./authorize');
-const { rateLimiter } = require('./rateLimiter');
-const { securityHeaders } = require('./securityHeaders');
-const { logout } = require('./logout');
-const { csrfProtection } = require('./csrfProtection');
-const { errorHandler } = require('./errorHandler');
+import { authenticate } from './authenticate.js';
+import { authorize } from './authorize.js';
+import { rateLimiter } from './rateLimiter.js';
+import { securityHeaders } from './securityHeaders.js';
+import { logout } from './logout.js';
+import { csrfProtection } from './csrfProtection.js';
+import { errorHandler } from './errorHandler.js';
 
-module.exports = {
+export {
   authenticate,
   authorize,
   rateLimiter,

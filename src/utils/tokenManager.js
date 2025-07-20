@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const { createLogger } = require('./logger');
-const { getRedisClient } = require('./redis');
+import jwt from 'jsonwebtoken';
+import { createLogger } from './logger.js';
+import { getRedisClient } from './redis.js';
 
 const logger = createLogger('auth-middleware', 'TOKEN');
 
@@ -113,4 +113,4 @@ class TokenManager {
   }
 }
 
-module.exports = { TokenManager }; 
+export { TokenManager }; 

@@ -1,7 +1,11 @@
-module.exports = {
+export default {
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: ['**/*.test.js'],
+  extensionsToTreatAsEsm: ['.js'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(@shared|auth-middleware)/)',
+  ],
   collectCoverageFrom: [
     'src/**/*.js',
     '!src/**/*.d.js',

@@ -51,4 +51,4 @@ const Permission = [
   'ADMIN_ACCESS'
 ];
 
-module.exports = { Permission, RolePermissions }; 
+export { Permission, RolePermissions }; 

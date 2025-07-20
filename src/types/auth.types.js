@@ -1,5 +1,5 @@
 // Export permissions
-const { Permission, RolePermissions } = require('./permissions');
+export { Permission, RolePermissions } from './permissions.js';
 
 // AuthConfig interface converted to JSDoc for documentation
 /**
@@ -11,9 +11,4 @@ const { Permission, RolePermissions } = require('./permissions');
  * @property {string} redisUrl - Redis connection URL
  * @property {string} [cookieDomain] - Cookie domain
  * @property {boolean} [secureCookies] - Whether to use secure cookies
- */
-
-module.exports = {
-  Permission,
-  RolePermissions
-}; 
+ */ 

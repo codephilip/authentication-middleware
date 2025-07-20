@@ -1,4 +1,4 @@
-const { 
+import { 
   authenticate, 
   authorize, 
   rateLimiter,
@@ -6,12 +6,12 @@ const {
   logout,
   csrfProtection,
   errorHandler 
-} = require('./middleware');
+} from './middleware/index.js';
 
-const { TokenManager } = require('./utils/tokenManager');
-const { Permission } = require('./types/permissions');
+import { TokenManager } from './utils/tokenManager.js';
+import { Permission } from './types/permissions.js';
 
-const { createLogger, httpLogger, performanceLogger } = require('./utils/logger');
+import { createLogger, httpLogger, performanceLogger } from './utils/logger.js';
 
 const logger = createLogger(
   'auth-middleware', 'middleware'
@@ -41,7 +41,7 @@ const initializeAuth = (config) => {
 };
 
 // Export a simplified API
-module.exports = {
+export {
   // Core middleware
   authenticate,
   authorize,

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Reusable authentication and authorization middleware for Express microservices",
   "main": "src/index.js",
+  "type": "module",
   "keywords": ["authentication", "authorization", "middleware", "express", "jwt", "redis"],
   "author": "Philip",
   "license": "MIT",

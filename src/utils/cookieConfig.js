@@ -15,4 +15,4 @@ const cookieConfig = {
   }
 };
 
-module.exports = { cookieConfig }; 
+export { cookieConfig }; 
