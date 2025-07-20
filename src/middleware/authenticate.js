@@ -1,6 +1,8 @@
 const { validateToken, refreshToken } = require('../utils/tokenValidator');
-const { logger } = require('../utils/logger');
+const { createLogger } = require('../utils/logger');
 const { cookieConfig } = require('../utils/cookieConfig');
+
+const logger = createLogger('auth-middleware', 'AUTH');
 
 const authenticate = async (req, res, next) => {
   try {

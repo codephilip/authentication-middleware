@@ -1,6 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
-const { logger } = require('../utils/logger');
+const { createLogger } = require('../utils/logger');
 const { getRedisClient } = require('../utils/redis');
+
+const logger = createLogger('auth-middleware', 'CSRF');
 
 const redis = getRedisClient();
 

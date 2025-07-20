@@ -1,5 +1,7 @@
-const { logger } = require('../utils/logger');
+const { createLogger } = require('../utils/logger');
 const { getRedisClient } = require('../utils/redis');
+
+const logger = createLogger('auth-middleware', 'RATE_LIMIT');
 
 const redis = getRedisClient();
 

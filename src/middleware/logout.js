@@ -1,6 +1,9 @@
-const { logger } = require('../utils/logger');
+const { createLogger } = require('../utils/logger');
+const { TokenManager } = require('../utils/tokenManager');
 const { cookieConfig } = require('../utils/cookieConfig');
 const { getRedisClient } = require('../utils/redis');
+
+const logger = createLogger('auth-middleware', 'LOGOUT');
 
 const redis = getRedisClient();
 

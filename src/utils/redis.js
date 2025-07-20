@@ -1,18 +1,20 @@
 const Redis = require('ioredis');
-const { logger } = require('./logger');
+const { createLogger } = require('./logger');
+
+const logger = createLogger('auth-middleware', 'REDIS');
 
 let redisClient = null;
 
 const getRedisClient = () => {
   if (!redisClient) {
     const options = {
-      host: process.env.REDIS_URL?.split('://')[1]?.split(':')[0] || 'localhost',
-      port: parseInt(process.env.REDIS_URL?.split(':')[2] || '6379'),
-      retryStrategy: (times) => {
-        const delay = Math.min(times * 50, 2000);
-        logger.warn(`Retrying Redis connection in ${delay}ms`);
-        return delay;
-      }
+      host: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
+      password: process.env.REDIS_PASSWORD,
+      db: process.env.REDIS_DB || 0,
+      retryDelayOnFailover: 100,
+      maxRetriesPerRequest: 3,
+      lazyConnect: true // Don't connect immediately
     };
 
     redisClient = new Redis(options);
@@ -20,9 +22,24 @@ const getRedisClient = () => {
     redisClient.on('error', (error) => {
       logger.error('Redis connection error:', error);
     });
+
+    redisClient.on('connect', () => {
+      logger.info('Redis connected successfully');
+    });
   }
-  
+
   return redisClient;
 };
 
-module.exports = { getRedisClient }; 
+const closeRedisConnection = async () => {
+  if (redisClient) {
+    await redisClient.quit();
+    redisClient = null;
+    logger.info('Redis connection closed');
+  }
+};
+
+module.exports = { 
+  getRedisClient, 
+  closeRedisConnection 
+}; 

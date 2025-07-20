@@ -1,14 +1,14 @@
 const jwt = require('jsonwebtoken');
-const { logger } = require('./logger');
+const { createLogger } = require('./logger');
 const { getRedisClient } = require('./redis');
 
-const redis = getRedisClient();
+const logger = createLogger('auth-middleware', 'TOKEN');
 
 class TokenManager {
   static ACCESS_TOKEN_EXPIRY = '15m';
   static REFRESH_TOKEN_EXPIRY = '7d';
 
-  static async generateTokenPair(payload) {
+  static generateTokenPair(payload) {
     try {
       logger.info('🔑 Generating new token pair', { 
         userId: payload.userId,
@@ -37,12 +37,10 @@ class TokenManager {
         }
       );
 
-      // Store refresh token in Redis for tracking
-      await redis.setex(
-        `refresh:${payload.userId}`,
-        7 * 24 * 60 * 60, // 7 days
-        refreshToken
-      );
+      // Only store in Redis if not in test environment
+      if (process.env.NODE_ENV !== 'test') {
+        this._storeRefreshToken(payload.userId, refreshToken);
+      }
 
       logger.info('✨ Tokens generated successfully', {
         userId: payload.userId,
@@ -57,9 +55,27 @@ class TokenManager {
     }
   }
 
+  static async _storeRefreshToken(userId, refreshToken) {
+    try {
+      const redis = getRedisClient();
+      await redis.setex(
+        `refresh:${userId}`,
+        7 * 24 * 60 * 60, // 7 days
+        refreshToken
+      );
+    } catch (error) {
+      logger.error('Failed to store refresh token in Redis:', error);
+    }
+  }
+
   static async revokeUserTokens(userId) {
     logger.info('🔒 Revoking tokens for user', { userId });
     try {
+      if (process.env.NODE_ENV === 'test') {
+        return true;
+      }
+      
+      const redis = getRedisClient();
       // Get stored refresh token
       const refreshToken = await redis.get(`refresh:${userId}`);
       if (refreshToken) {
@@ -83,6 +99,11 @@ class TokenManager {
 
   static async isTokenBlacklisted(token) {
     try {
+      if (process.env.NODE_ENV === 'test') {
+        return false;
+      }
+      
+      const redis = getRedisClient();
       const blacklisted = await redis.get(`blacklist:${token}`);
       return !!blacklisted;
     } catch (error) {

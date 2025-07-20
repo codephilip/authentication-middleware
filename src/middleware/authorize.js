@@ -1,5 +1,7 @@
 const { Permission, RolePermissions } = require('../types/permissions');
-const { logger } = require('../utils/logger');
+const { createLogger } = require('../utils/logger');
+
+const logger = createLogger('auth-middleware', 'AUTHZ');
 
 const authorize = (requiredPermissions) => {
   return async (req, res, next) => {

@@ -1,6 +1,4 @@
-import { OpenAPIV3 } from 'openapi-types';
-
-export const swaggerDocument: OpenAPIV3.Document = {
+const swaggerDocument = {
   openapi: '3.0.0',
   info: {
     title: 'Auth Middleware API',
@@ -199,10 +197,10 @@ export const swaggerDocument: OpenAPIV3.Document = {
     '/api/public': {
       get: {
         tags: ['Protected'],
-        summary: 'Public endpoint (no auth required)',
+        summary: 'Public endpoint (no authentication required)',
         responses: {
           '200': {
-            description: 'Public data',
+            description: 'Public endpoint response',
             content: {
               'application/json': {
                 schema: {
@@ -224,7 +222,7 @@ export const swaggerDocument: OpenAPIV3.Document = {
         security: [{ cookieAuth: [] }],
         responses: {
           '200': {
-            description: 'User data',
+            description: 'User data retrieved',
             content: {
               'application/json': {
                 schema: {
@@ -241,7 +239,9 @@ export const swaggerDocument: OpenAPIV3.Document = {
             description: 'Unauthorized',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Error' }
+                schema: {
+                  $ref: '#/components/schemas/Error'
+                }
               }
             }
           }
@@ -251,27 +251,11 @@ export const swaggerDocument: OpenAPIV3.Document = {
     '/api/admin': {
       get: {
         tags: ['Protected'],
-        summary: 'Admin only endpoint',
-        security: [
-          { 
-            cookieAuth: [],
-            csrfToken: []
-          }
-        ],
-        parameters: [
-          {
-            in: 'header',
-            name: 'X-XSRF-TOKEN',
-            schema: {
-              type: 'string'
-            },
-            required: true,
-            description: 'CSRF token'
-          }
-        ],
+        summary: 'Admin endpoint (requires ADMIN_ACCESS permission)',
+        security: [{ cookieAuth: [] }],
         responses: {
           '200': {
-            description: 'Admin data',
+            description: 'Admin data retrieved',
             content: {
               'application/json': {
                 schema: {
@@ -284,11 +268,23 @@ export const swaggerDocument: OpenAPIV3.Document = {
               }
             }
           },
-          '403': {
-            description: 'Forbidden - Requires ADMIN_ACCESS permission',
+          '401': {
+            description: 'Unauthorized',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Error' }
+                schema: {
+                  $ref: '#/components/schemas/Error'
+                }
+              }
+            }
+          },
+          '403': {
+            description: 'Forbidden - insufficient permissions',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error'
+                }
               }
             }
           }
@@ -298,38 +294,29 @@ export const swaggerDocument: OpenAPIV3.Document = {
     '/api/limited': {
       get: {
         tags: ['Protected'],
-        summary: 'Rate limited endpoint example',
+        summary: 'Rate limited endpoint',
         security: [{ cookieAuth: [] }],
-        parameters: [
-          {
-            in: 'header',
-            name: 'X-XSRF-TOKEN',
-            schema: {
-              type: 'string'
-            },
-            required: true,
-            description: 'CSRF token'
-          }
-        ],
         responses: {
           '200': {
-            description: 'Success',
+            description: 'Rate limited endpoint response',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    message: { type: 'string' }
+                    message: { type: 'string', example: 'Rate limited endpoint' }
                   }
                 }
               }
             }
           },
           '429': {
-            description: 'Too Many Requests',
+            description: 'Too many requests',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Error' }
+                schema: {
+                  $ref: '#/components/schemas/Error'
+                }
               }
             }
           }
@@ -339,26 +326,8 @@ export const swaggerDocument: OpenAPIV3.Document = {
     '/api/refresh': {
       post: {
         tags: ['Auth'],
-        summary: 'Refresh access token using refresh token',
-        description: 'Uses the refresh token from cookies to generate a new access token. The old access token (if present) will be invalidated.',
-        security: [
-          { 
-            cookieAuth: [],
-            refreshToken: [],
-            csrfToken: []
-          }
-        ],
-        parameters: [
-          {
-            in: 'header',
-            name: 'X-XSRF-TOKEN',
-            schema: {
-              type: 'string'
-            },
-            required: true,
-            description: 'CSRF token'
-          }
-        ],
+        summary: 'Refresh access token',
+        security: [{ cookieAuth: [] }],
         responses: {
           '200': {
             description: 'Token refreshed successfully',
@@ -372,21 +341,15 @@ export const swaggerDocument: OpenAPIV3.Document = {
                   }
                 }
               }
-            },
-            headers: {
-              'Set-Cookie': {
-                schema: {
-                  type: 'string',
-                  description: 'New access token cookie'
-                }
-              }
             }
           },
           '401': {
-            description: 'Token refresh failed - Invalid or expired refresh token',
+            description: 'Token refresh failed',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Error' }
+                schema: {
+                  $ref: '#/components/schemas/Error'
+                }
               }
             }
           }
@@ -396,19 +359,8 @@ export const swaggerDocument: OpenAPIV3.Document = {
     '/api/revoke': {
       post: {
         tags: ['Auth'],
-        summary: 'Revoke all tokens for the current user',
+        summary: 'Revoke user tokens',
         security: [{ cookieAuth: [] }],
-        parameters: [
-          {
-            in: 'header',
-            name: 'X-XSRF-TOKEN',
-            schema: {
-              type: 'string'
-            },
-            required: true,
-            description: 'CSRF token'
-          }
-        ],
         responses: {
           '200': {
             description: 'Tokens revoked successfully',
@@ -427,7 +379,9 @@ export const swaggerDocument: OpenAPIV3.Document = {
             description: 'Token revocation failed',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Error' }
+                schema: {
+                  $ref: '#/components/schemas/Error'
+                }
               }
             }
           }
@@ -435,4 +389,6 @@ export const swaggerDocument: OpenAPIV3.Document = {
       }
     }
   }
-}; 
+};
+
+module.exports = { swaggerDocument }; 

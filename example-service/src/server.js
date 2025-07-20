@@ -1,12 +1,10 @@
-import express from 'express';
-import cookieParser from 'cookie-parser';
-import swaggerUi from 'swagger-ui-express';
-import { initializeAuth } from 'auth-middleware';
-import { swaggerDocument } from './swagger';
-import { Request, Response } from 'express';
-import { Permission } from 'auth-middleware/dist/types/permissions';
-import { environment } from './config/environment';
-import { setupLogging, logger } from './utils/logger';
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const swaggerUi = require('swagger-ui-express');
+const { initializeAuth } = require('../../src/index');
+const { swaggerDocument } = require('./swagger');
+const { environment } = require('./config/environment');
+const { setupLogging, logger } = require('./utils/logger');
 
 const app = express();
 
@@ -34,18 +32,18 @@ const authenticate = auth.essential[0];
 const rateLimiter = auth.essential[1];
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (req, res) => {
   logger.info('Health check requested');
   res.json({ status: 'healthy' });
 });
 
 // Authentication endpoints
-app.post('/login', async (req: Request, res: Response) => {
+app.post('/login', async (req, res) => {
   try {
     const { userId, email, roles = ['USER'], permissions = ['READ'] } = req.body;
     logger.info('Login attempt', { userId, email, roles });
 
-    const tokens = await auth.TokenManager.generateTokenPair({
+    const tokens = auth.TokenManager.generateTokenPair({
       userId,
       email,
       roles,
@@ -64,7 +62,7 @@ app.post('/login', async (req: Request, res: Response) => {
       sameSite: 'lax'
     });
 
-    logger.success('Login successful', { userId });
+    logger.info('Login successful', { userId });
     res.json({ message: 'Login successful', tokens });
   } catch (error) {
     logger.error('Login failed', error);
@@ -73,20 +71,20 @@ app.post('/login', async (req: Request, res: Response) => {
 });
 
 // API endpoints with different authorization levels
-app.get('/api/public', (req: Request, res: Response) => {
+app.get('/api/public', (req, res) => {
   logger.info('Public endpoint accessed');
   res.json({ message: 'Public endpoint' });
 });
 
-app.get('/api/user', authenticate, (req: Request, res: Response) => {
+app.get('/api/user', authenticate, (req, res) => {
   logger.info('User endpoint accessed', { userId: req.user?.id });
   res.json({ message: 'User endpoint', user: req.user });
 });
 
 app.get('/api/admin', 
   authenticate,
-  auth.authorize(['ADMIN_ACCESS'] as Permission[]),
-  (req: Request, res: Response) => {
+  auth.authorize(['ADMIN_ACCESS']),
+  (req, res) => {
     logger.info('Admin endpoint accessed', { userId: req.user?.id });
     res.json({ message: 'Admin endpoint', user: req.user });
   }
@@ -96,20 +94,20 @@ app.get('/api/admin',
 app.get('/api/limited', 
   authenticate,
   rateLimiter,
-  (req: Request, res: Response) => {
+  (req, res) => {
     logger.info('Rate limited endpoint accessed', { userId: req.user?.id });
     res.json({ message: 'Rate limited endpoint' });
   }
 );
 
 // Token management endpoints
-app.post('/api/refresh', authenticate, async (req: Request, res: Response) => {
+app.post('/api/refresh', authenticate, async (req, res) => {
   try {
-    const newTokens = await auth.TokenManager.generateTokenPair({
-      userId: req.user!.id,
-      email: req.user!.email,
-      roles: req.user!.roles,
-      permissions: req.user!.permissions
+    const newTokens = auth.TokenManager.generateTokenPair({
+      userId: req.user.id,
+      email: req.user.email,
+      roles: req.user.roles,
+      permissions: req.user.permissions
     });
 
     res.cookie('accessToken', newTokens.accessToken, {
@@ -128,9 +126,9 @@ app.post('/api/refresh', authenticate, async (req: Request, res: Response) => {
 
 app.post('/api/revoke', 
   authenticate,
-  async (req: Request, res: Response) => {
+  async (req, res) => {
     try {
-      const { id } = req.user!;
+      const { id } = req.user;
       await auth.TokenManager.revokeUserTokens(id);
       logger.info('Tokens revoked', { userId: id });
       res.json({ message: 'Tokens revoked' });
@@ -141,7 +139,7 @@ app.post('/api/revoke',
   }
 );
 
-app.post('/logout', auth.logout, (req: Request, res: Response) => {
+app.post('/logout', auth.logout, (req, res) => {
   logger.info('User logged out', { userId: req.user?.id });
   res.json({ message: 'Logged out successfully' });
 });
@@ -149,7 +147,7 @@ app.post('/logout', auth.logout, (req: Request, res: Response) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  logger.success(`🚀 Server running on http://localhost:${PORT}`);
+  logger.info(`🚀 Server running on http://localhost:${PORT}`);
   logger.info(`API documentation available at http://localhost:${PORT}/api-docs`);
   logger.info(`
 Available endpoints:

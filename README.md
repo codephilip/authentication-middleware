@@ -11,14 +11,17 @@ A reusable authentication and authorization middleware for Express microservices
 - CSRF protection
 - Secure cookie handling
 - Redis-based token management
-- Integrated logging with @codephil/logging-middleware
+- Integrated logging with local logging middleware
 
 ## Installation
 
 ```bash
-git submodule add https://github.com/codephil/auth-middleware.git deps/auth-middleware
+# Clone the repository
+git clone <your-repo-url>
+cd authentication-middleware
 
-git submodule update --init --recursive
+# Install dependencies
+npm install
 ```
 
 ## Setup
@@ -26,14 +29,13 @@ git submodule update --init --recursive
 1. Install dependencies:
 
 ```bash
-cd src/middleware/auth-middleware
 npm install
 ```
 
 2. Initialize the middleware in your Express app:
 
 ```javascript
-const { initializeAuth } = require('./middleware/auth-middleware/src/index');
+const { initializeAuth } = require('./src/index');
 
 const auth = initializeAuth({
   jwtSecret: process.env.JWT_SECRET,
@@ -121,7 +123,7 @@ npm run test:coverage
 
 ## Logging
 
-This middleware uses @codephil/logging-middleware for structured logging. All authentication and authorization events are logged with appropriate context and severity levels.
+This middleware uses a local logging implementation for structured logging. All authentication and authorization events are logged with appropriate context and severity levels.
 
 Example log output:
 
@@ -158,17 +160,16 @@ docker-compose logs -f auth-service
 
 ## Usage
 
-The middleware packages can be used across different microservices by adding them as dependencies in your service's package.json:
+The middleware can be used across different microservices by adding it as a dependency in your service's package.json:
 
 ```json
 {
   "dependencies": {
-    "auth-middleware": "file:../auth-middleware",
-    "logging-middleware": "file:../logging-middleware"
+    "auth-middleware": "file:../authentication-middleware"
   }
 }
 ```
 
 ## JavaScript Implementation
 
-This middleware is now implemented in pure JavaScript (ES6+) and can be used directly without any TypeScript compilation step. All type definitions have been converted to JSDoc comments for better IDE support and documentation.
+This middleware is implemented in pure JavaScript (ES6+) and can be used directly without any TypeScript compilation step. All type definitions have been converted to JSDoc comments for better IDE support and documentation.

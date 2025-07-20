@@ -1,9 +1,9 @@
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 
 // Load environment variables from .env file
 dotenv.config();
 
-export const environment = {
+const environment = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: parseInt(process.env.PORT || '3000', 10),
   JWT_SECRET: process.env.JWT_SECRET || 'dev-secret',
@@ -11,4 +11,6 @@ export const environment = {
   REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
   JWT_AUDIENCE: process.env.JWT_AUDIENCE || 'dev-server',
   JWT_ISSUER: process.env.JWT_ISSUER || 'auth-middleware'
-}; 
+};
+
+module.exports = { environment }; 

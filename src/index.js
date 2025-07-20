@@ -11,7 +11,7 @@ const {
 const { TokenManager } = require('./utils/tokenManager');
 const { Permission } = require('./types/permissions');
 
-const { createLogger, httpLogger, performanceLogger } = require('@codephil/logging-middleware');
+const { createLogger, httpLogger, performanceLogger } = require('./utils/logger');
 
 const logger = createLogger(
   'auth-middleware', 'middleware'

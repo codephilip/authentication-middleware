@@ -1,4 +1,6 @@
-const { logger } = require('../utils/logger');
+const { createLogger } = require('../utils/logger');
+
+const logger = createLogger('auth-middleware', 'ERROR');
 
 const errorHandler = (error, req, res, next) => {
   const statusCode = error.statusCode || 500;

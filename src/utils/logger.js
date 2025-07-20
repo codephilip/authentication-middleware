@@ -65,19 +65,25 @@ const httpLogger = (req, res, next) => {
   next();
 };
 
-const performanceLogger = (operation, duration, metadata = {}) => {
-  console.log(JSON.stringify({
-    level: 'info',
-    service: 'auth-middleware',
-    component: 'PERFORMANCE',
-    message: `Operation: ${operation}`,
-    metadata: {
-      operation,
-      duration,
-      ...metadata
-    },
-    timestamp: new Date().toISOString()
-  }));
+const performanceLogger = (req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(JSON.stringify({
+      level: 'info',
+      service: 'auth-middleware',
+      component: 'PERFORMANCE',
+      message: `Request completed`,
+      metadata: {
+        method: req.method,
+        path: req.path,
+        duration,
+        statusCode: res.statusCode
+      },
+      timestamp: new Date().toISOString()
+    }));
+  });
+  next();
 };
 
 module.exports = {
