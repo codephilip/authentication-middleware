@@ -6,40 +6,59 @@ const logger = createLogger('auth-middleware', 'REDIS');
 let redisClient = null;
 
 const getRedisClient = () => {
-  if (!redisClient) {
-    const options = {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD,
-      db: process.env.REDIS_DB || 0,
-      retryDelayOnFailover: 100,
-      maxRetriesPerRequest: 3,
-      lazyConnect: true // Don't connect immediately
-    };
+  if (redisClient) {
+    return redisClient;
+  }
 
-    redisClient = new Redis(options);
-    
-    redisClient.on('error', (error) => {
-      logger.error('Redis connection error:', error);
+  // Use mock Redis for tests
+  if (process.env.NODE_ENV === 'test') {
+    const mockRedis = {
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue('OK'),
+      setex: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
+      quit: jest.fn().mockResolvedValue('OK')
+    };
+    redisClient = mockRedis;
+    return redisClient;
+  }
+
+  try {
+    redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+      retryDelayOnFailover: 100,
+      enableReadyCheck: false,
+      maxRetriesPerRequest: null
     });
 
     redisClient.on('connect', () => {
-      logger.info('Redis connected successfully');
+      logger.info('✅ Redis connected');
     });
-  }
 
-  return redisClient;
+    redisClient.on('error', (error) => {
+      logger.error('❌ Redis connection error:', error);
+    });
+
+    redisClient.on('close', () => {
+      logger.info('🔌 Redis connection closed');
+    });
+
+    return redisClient;
+  } catch (error) {
+    logger.error('❌ Failed to create Redis client:', error);
+    throw error;
+  }
 };
 
 const closeRedisConnection = async () => {
-  if (redisClient) {
-    await redisClient.quit();
-    redisClient = null;
-    logger.info('Redis connection closed');
+  if (redisClient && typeof redisClient.quit === 'function') {
+    try {
+      await redisClient.quit();
+      redisClient = null;
+      logger.info('🔌 Redis connection closed');
+    } catch (error) {
+      logger.error('❌ Error closing Redis connection:', error);
+    }
   }
 };
 
-module.exports = { 
-  getRedisClient, 
-  closeRedisConnection 
-}; 
+module.exports = { getRedisClient, closeRedisConnection }; 

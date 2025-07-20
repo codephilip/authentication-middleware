@@ -21,8 +21,8 @@ class TokenManager {
         {
           algorithm: 'HS512',
           expiresIn: this.ACCESS_TOKEN_EXPIRY,
-          audience: process.env.JWT_AUDIENCE || 'mememe',
-          issuer: process.env.JWT_ISSUER || 'mememe'
+          audience: process.env.JWT_AUDIENCE || 'dev-server',
+          issuer: process.env.JWT_ISSUER || 'auth-middleware'
         }
       );
 
@@ -32,8 +32,8 @@ class TokenManager {
         {
           algorithm: 'HS512',
           expiresIn: this.REFRESH_TOKEN_EXPIRY,
-          audience: process.env.JWT_AUDIENCE || 'mememe',
-          issuer: process.env.JWT_ISSUER || 'mememe'
+          audience: process.env.JWT_AUDIENCE || 'dev-server',
+          issuer: process.env.JWT_ISSUER || 'auth-middleware'
         }
       );
 

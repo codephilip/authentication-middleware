@@ -1,12 +1,15 @@
 const jwt = require('jsonwebtoken');
-const { logger } = require('./logger');
+const { createLogger } = require('./logger');
 const { getRedisClient } = require('./redis');
 
-const redis = getRedisClient();
+const logger = createLogger('auth-middleware', 'TOKEN');
 
 const validateToken = async (token) => {
   try {
     logger.info('🔍 Validating token');
+    
+    // Get Redis client lazily
+    const redis = getRedisClient();
     
     // Check cache
     const cachedToken = await redis.get(`token:${token}`);
@@ -18,8 +21,8 @@ const validateToken = async (token) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: ['HS512'],
-      audience: process.env.JWT_AUDIENCE || 'mememe',
-      issuer: process.env.JWT_ISSUER || 'mememe'
+      audience: process.env.JWT_AUDIENCE || 'dev-server',
+      issuer: process.env.JWT_ISSUER || 'auth-middleware'
     });
     
     logger.info('✅ Token validated successfully', {
@@ -38,7 +41,12 @@ const validateToken = async (token) => {
 
     return decoded;
   } catch (error) {
-    logger.error('❌ Token validation failed:', error);
+    logger.error('❌ Token validation failed:', error.message);
+    logger.error('❌ Token validation error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
     return null;
   }
 };
@@ -47,8 +55,8 @@ const refreshToken = async (refreshToken) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, {
       algorithms: ['HS512'],
-      audience: process.env.JWT_AUDIENCE || 'mememe',
-      issuer: process.env.JWT_ISSUER || 'mememe'
+      audience: process.env.JWT_AUDIENCE || 'dev-server',
+      issuer: process.env.JWT_ISSUER || 'auth-middleware'
     });
 
     // Generate new access token
@@ -63,8 +71,8 @@ const refreshToken = async (refreshToken) => {
       {
         algorithm: 'HS512',
         expiresIn: '15m',
-        audience: process.env.JWT_AUDIENCE || 'mememe',
-        issuer: process.env.JWT_ISSUER || 'mememe'
+        audience: process.env.JWT_AUDIENCE || 'dev-server',
+        issuer: process.env.JWT_ISSUER || 'auth-middleware'
       }
     );
 

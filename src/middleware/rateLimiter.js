@@ -3,7 +3,8 @@ const { getRedisClient } = require('../utils/redis');
 
 const logger = createLogger('auth-middleware', 'RATE_LIMIT');
 
-const redis = getRedisClient();
+// Get Redis client lazily to avoid issues in test environment
+const getRedis = () => getRedisClient();
 
 const rateLimiter = ({
   windowMs = 15 * 60 * 1000, // 15 minutes
@@ -11,6 +12,7 @@ const rateLimiter = ({
 } = {}) => {
   return async (req, res, next) => {
     try {
+      const redis = getRedis();
       const key = `ratelimit:${req.ip}`;
       const current = await redis.incr(key);
       

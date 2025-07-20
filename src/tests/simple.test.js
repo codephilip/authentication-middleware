@@ -1,4 +1,5 @@
 const { TokenManager } = require('../utils/tokenManager');
+const { closeRedisConnection } = require('../utils/redis');
 
 // Set up test environment
 process.env.NODE_ENV = 'test';
@@ -8,6 +9,10 @@ process.env.JWT_AUDIENCE = 'test-audience';
 process.env.JWT_ISSUER = 'test-issuer';
 
 describe('Token Manager Tests', () => {
+  afterAll(async () => {
+    await closeRedisConnection();
+  });
+
   test('should generate token pair', () => {
     const payload = { userId: '123', roles: ['USER'] };
     const tokens = TokenManager.generateTokenPair(payload);
