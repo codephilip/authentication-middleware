@@ -1,6 +1,6 @@
 # Auth Middleware
 
-A reusable authentication and authorization middleware for Express microservices.
+A reusable authentication and authorization middleware for Express microservices, designed to be used as a GitHub submodule.
 
 ## Features
 
@@ -15,9 +15,25 @@ A reusable authentication and authorization middleware for Express microservices
 
 ## Installation
 
+### As a GitHub Submodule (Recommended for Production)
+
+```bash
+# Add as submodule in your microservice
+git submodule add git@github.com:codephilip/authentication-middleware.git shared/auth-middleware
+
+# Initialize and update submodule
+git submodule update --init --recursive
+
+# Install dependencies
+cd shared/auth-middleware
+npm install
+```
+
+### As a Local Dependency (Development)
+
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone git@github.com:codephilip/authentication-middleware.git
 cd authentication-middleware
 
 # Install dependencies
@@ -35,7 +51,7 @@ npm install
 2. Initialize the middleware in your Express app:
 
 ```javascript
-const { initializeAuth } = require('./src/index');
+const { initializeAuth } = require('./shared/auth-middleware/src/index');
 
 const auth = initializeAuth({
   jwtSecret: process.env.JWT_SECRET,
@@ -158,16 +174,61 @@ docker-compose exec auth-service npm test
 docker-compose logs -f auth-service
 ```
 
-## Usage
+## Production Usage
 
-The middleware can be used across different microservices by adding it as a dependency in your service's package.json:
+### Using as a Submodule
 
+1. **Add to your microservice:**
+```bash
+git submodule add git@github.com:codephilip/authentication-middleware.git shared/auth-middleware
+```
+
+2. **Update your service's package.json:**
 ```json
 {
   "dependencies": {
-    "auth-middleware": "file:../authentication-middleware"
+    "auth-middleware": "file:./shared/auth-middleware"
   }
 }
+```
+
+3. **Initialize in your Express app:**
+```javascript
+const { initializeAuth } = require('./shared/auth-middleware/src/index');
+```
+
+### Submodule Management
+
+**Update the submodule to latest version:**
+```bash
+git submodule update --remote shared/auth-middleware
+```
+
+**Update to specific version:**
+```bash
+cd shared/auth-middleware
+git checkout v1.0.0
+cd ../..
+git add shared/auth-middleware
+git commit -m "Update auth-middleware to v1.0.0"
+```
+
+**Clone a project with submodules:**
+```bash
+git clone --recursive <your-repo-url>
+```
+
+## Version Management
+
+This middleware follows semantic versioning. To update to a specific version:
+
+```bash
+cd shared/auth-middleware
+git fetch --tags
+git checkout v1.0.0  # Replace with desired version
+cd ../..
+git add shared/auth-middleware
+git commit -m "Update auth-middleware to v1.0.0"
 ```
 
 ## JavaScript Implementation
