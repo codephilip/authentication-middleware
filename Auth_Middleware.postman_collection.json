@@ -1,0 +1,143 @@
+{
+  "info": {
+    "_postman_id": "your-collection-id",
+    "name": "Auth Middleware API",
+    "description": "Collection for testing the Auth Middleware API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": \"123\",\n    \"email\": \"test@example.com\",\n    \"roles\": [\"USER\"],\n    \"permissions\": [\"READ\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Tokens are present\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.tokens).to.have.property('accessToken');",
+                  "    pm.expect(jsonData.tokens).to.have.property('refreshToken');",
+                  "});",
+                  "",
+                  "// Save tokens for other requests",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"accessToken\", jsonData.tokens.accessToken);",
+                  "    pm.environment.set(\"refreshToken\", jsonData.tokens.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "refresh"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Protected Endpoints",
+      "item": [
+        {
+          "name": "User Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user"]
+            }
+          }
+        },
+        {
+          "name": "Admin Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}"
+              },
+              {
+                "key": "X-XSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Generate CSRF token if not exists",
+          "if (!pm.environment.get('csrfToken')) {",
+          "    pm.environment.set('csrfToken', pm.variables.replaceIn('{{$guid}}'));",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+} 

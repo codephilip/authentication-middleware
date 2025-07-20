@@ -1,0 +1,54 @@
+const RolePermissions = {
+  ADMIN: [
+    'ADMIN_ACCESS',
+    'MANAGE_USERS',
+    'READ_JOBS',
+    'CREATE_JOBS',
+    'UPDATE_JOBS',
+    'DELETE_JOBS',
+    'READ_PROPOSALS',
+    'CREATE_PROPOSALS',
+    'UPDATE_PROPOSALS',
+    'DELETE_PROPOSALS',
+    'READ_CONTRACTS',
+    'CREATE_CONTRACTS',
+    'UPDATE_CONTRACTS',
+    'DELETE_CONTRACTS'
+  ],
+  CLIENT: [
+    'READ_JOBS',
+    'CREATE_JOBS',
+    'UPDATE_JOBS',
+    'DELETE_JOBS',
+    'READ_PROPOSALS',
+    'READ_CONTRACTS',
+    'CREATE_CONTRACTS'
+  ],
+  FREELANCER: [
+    'READ_JOBS',
+    'READ_PROPOSALS',
+    'CREATE_PROPOSALS',
+    'UPDATE_PROPOSALS',
+    'READ_CONTRACTS'
+  ]
+};
+
+// Define Permission as a string union type for documentation
+const Permission = [
+  'READ_JOBS',
+  'CREATE_JOBS',
+  'UPDATE_JOBS',
+  'DELETE_JOBS',
+  'READ_PROPOSALS',
+  'CREATE_PROPOSALS',
+  'UPDATE_PROPOSALS',
+  'DELETE_PROPOSALS',
+  'READ_CONTRACTS',
+  'CREATE_CONTRACTS',
+  'UPDATE_CONTRACTS',
+  'DELETE_CONTRACTS',
+  'MANAGE_USERS',
+  'ADMIN_ACCESS'
+];
+
+module.exports = { Permission, RolePermissions }; 

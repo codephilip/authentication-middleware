@@ -1,0 +1,44 @@
+{
+  "name": "auth-middleware",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test:coverage": "jest --coverage",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:integration": "jest --config jest.integration.config.js",
+    "test:e2e": "jest --config jest.e2e.config.js",
+    "lint": "eslint . --ext .ts",
+    "dev": "cd example-service && npm run dev",
+    "setup": "git submodule update --init --recursive && cd deps/logging-middleware && npm install && npm run build"
+  },
+  "dependencies": {
+    "@codephil/logging-middleware": "^1.0.0",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.7",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.0",
+    "redis": "^4.7.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.6",
+    "@types/dotenv": "^8.2.3",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.11",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/uuid": "^9.0.8",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.2"
+  }
+}

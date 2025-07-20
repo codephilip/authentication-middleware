@@ -1,0 +1,27 @@
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  auth-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your_jwt_secret
+      - JWT_REFRESH_SECRET=your_jwt_refresh_secret
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - ../logging-middleware:/deps/logging-middleware
+    depends_on:
+      - redis
+
+volumes:
+  redis_data:
